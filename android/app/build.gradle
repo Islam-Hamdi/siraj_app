@@ -1,0 +1,44 @@
+/* android/app/build.gradle
+ * ────────────────────────────────────────────────────────── */
+
+plugins {
+    id 'com.android.application'      // version comes from settings.gradle
+    id 'org.jetbrains.kotlin.android' // idem
+    id 'com.google.gms.google-services'
+    id 'dev.flutter.flutter-gradle-plugin'
+}
+
+android {
+
+    namespace   "com.example.siraj"
+
+    /* values exported by the Flutter plug-in ------------------------------- */
+    compileSdk  flutter.compileSdkVersion        // = 34 on Flutter 3.32.x
+    ndkVersion  "27.0.12077973"                  // audioplayers, etc.
+
+    defaultConfig {
+        applicationId "com.example.siraj"
+
+        /* raised from 21 ➜ 23 because record_android wants 23+ */
+        minSdk       23
+        targetSdk    flutter.targetSdkVersion
+
+        versionCode  flutter.versionCode
+        versionName  flutter.versionName
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions { jvmTarget = "1.8" }
+
+    buildTypes {
+        release {
+            // keep debug keystore for now so “flutter run --release” works
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter { source = "../.." }          // ✔ keep Flutter’s module pointer

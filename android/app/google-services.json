@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "331059270060",
+    "project_id": "siraj-e4a11",
+    "storage_bucket": "siraj-e4a11.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331059270060:android:1ec40268ba58348c12ea09",
+        "android_client_info": {
+          "package_name": "com.example.siraj"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331059270060-qo6hofj2amfb1ogkhrdtjklam8tp3usi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcB9lfr5kkG2OsJzsDm2hZtt-eppSUUmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331059270060-qo6hofj2amfb1ogkhrdtjklam8tp3usi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
