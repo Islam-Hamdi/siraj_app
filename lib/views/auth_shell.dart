@@ -222,7 +222,7 @@ class _AuthShellState extends ConsumerState<AuthShell>
         password: _loginPassword.text.trim(),
       );
 
-      if (mounted) context.go('/main/home');
+      if (mounted) context.go('/main');
     } catch (e) {
       _show(e.toString());
     } finally {
@@ -248,7 +248,7 @@ class _AuthShellState extends ConsumerState<AuthShell>
         displayName: _name.text.trim(),
       );
 
-      if (mounted) context.go('/main/home');
+      if (mounted) context.go('/main');
     } catch (e) {
       _show(e.toString());
     } finally {

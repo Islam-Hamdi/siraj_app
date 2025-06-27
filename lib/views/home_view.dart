@@ -4,6 +4,7 @@ import '../theme/colors.dart';
 import '../widgets/prayer_times_card.dart';
 import '../widgets/progress_row.dart';
 import '../widgets/insights_carousel.dart';
+import 'profile_view.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -19,19 +20,20 @@ class HomeView extends ConsumerWidget {
             expandedHeight: 120,
             floating: false,
             pinned: true,
+            snap: false,
             backgroundColor: SirajColors.beige50,
             foregroundColor: SirajColors.sirajBrown900,
             elevation: 0,
             flexibleSpace: const FlexibleSpaceBar(
               title: Text(
-                'أهلاً وسهلاً',
+                'أهلاً وسهلاً' ,
                 style: TextStyle(
                   color: SirajColors.sirajBrown900,
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              centerTitle: false,
+              centerTitle: true,
               titlePadding: EdgeInsets.only(left: 16, bottom: 16),
             ),
             actions: [
@@ -40,6 +42,9 @@ class HomeView extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: () {
                     // Navigate to profile
+                    Navigator.of(context).push(
+    MaterialPageRoute(builder: (context) => const ProfileView()),
+  );
                   },
                   child: const CircleAvatar(
                     radius: 20,
