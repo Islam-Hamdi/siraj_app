@@ -8,6 +8,7 @@ class AyahTile extends ConsumerWidget {
   final String arabicText;
   final VoidCallback onListen;
   final VoidCallback onAskSiraj;
+  final VoidCallback? onPlayFanarAnswer;
 
   const AyahTile({
     super.key,
@@ -16,6 +17,7 @@ class AyahTile extends ConsumerWidget {
     required this.arabicText,
     required this.onListen,
     required this.onAskSiraj,
+    this.onPlayFanarAnswer,
   });
 
   @override
@@ -87,7 +89,16 @@ class AyahTile extends ConsumerWidget {
                         size: 20,
                       ),
                       onPressed: onListen,
-                      tooltip: 'استمع',
+                      tooltip: 'استمع للآية',
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.speaker_notes,
+                        color: SirajColors.accentGold,
+                        size: 20,
+                      ),
+                      onPressed: onPlayFanarAnswer,
+                      tooltip: 'استمع لشرح سراج',
                     ),
                     IconButton(
                       icon: const Icon(
@@ -132,6 +143,7 @@ class AyahTile extends ConsumerWidget {
                         height: 2.0,
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
+                        fontFamily: 'AmiriQuran',
                       ),
                   textAlign: TextAlign.right,
                   textDirection: TextDirection.rtl,

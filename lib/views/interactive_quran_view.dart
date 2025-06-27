@@ -36,15 +36,28 @@ class _InteractiveQuranViewState extends ConsumerState<InteractiveQuranView> {
         elevation: 0,
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSearchDialog(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () => _showBookmarksDialog(),
-          ),
-        ],
+  // Search the entire Quran (existing functionality)
+  IconButton(
+    icon: const Icon(Icons.search),
+    tooltip: 'بحث في المصحف',
+    onPressed: _showSearchDialog,
+  ),
+
+  // View bookmarks (existing functionality)
+  IconButton(
+    icon: const Icon(Icons.bookmark_outline),
+    tooltip: 'العلامات المرجعية',
+    onPressed: _showBookmarksDialog,
+  ),
+
+  // New: Surah Selector
+  IconButton(
+    icon: const Icon(Icons.menu_book), // You can also use Icons.list or Icons.search_rounded
+    tooltip: 'اختر السورة',
+    onPressed: _showSurahSelector,
+  ),
+],
+
       ),
       body: Column(
         children: [
@@ -67,17 +80,14 @@ class _InteractiveQuranViewState extends ConsumerState<InteractiveQuranView> {
                   arabicText: ayahText,
                   onListen: () => _listenToAyah(_currentSurah, ayahNumber, ayahText),
                   onAskSiraj: () => _askSirajAboutAyah(_currentSurah, ayahNumber, ayahText),
+                  onPlayFanarAnswer: () => _playAyahExplanation(_currentSurah, ayahNumber, ayahText),
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showSurahSelector(),
-        backgroundColor: SirajColors.accentGold,
-        child: const Icon(Icons.list, color: Colors.white),
-      ),
+
     );
   }
 
@@ -161,6 +171,32 @@ class _InteractiveQuranViewState extends ConsumerState<InteractiveQuranView> {
     );
   }
 
+  void _playAyahExplanation(int surah, int ayah, String text) async {
+    try {
+      final audioService = ref.read(audioServiceProvider);
+      
+      // Get explanation from FANAR API
+      final response = await _fanarApi.islamicRagExplain(
+        ayahText: text,
+        ayahKey: '$surah:$ayah',
+      );
+      
+      final explanation = response['choices']?[0]?['message']?['content'] ?? 
+                         'عذراً، لم أتمكن من الحصول على شرح للآية في الوقت الحالي.';
+      
+      // Use playLongTts for explanations which can be long
+      if (explanation.length > 500) {
+        await audioService.playLongTts(explanation);
+      } else {
+        await audioService.playTextToSpeech(explanation);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في تشغيل شرح الآية: $e')),
+      );
+    }
+  }
+
   void _listenToAyah(int surah, int ayah, String text) async {
     try {
       final audioService = ref.read(audioServiceProvider);
@@ -204,33 +240,101 @@ class _InteractiveQuranViewState extends ConsumerState<InteractiveQuranView> {
     );
   }
 
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('البحث في القرآن'),
-        content: const TextField(
-          decoration: InputDecoration(
-            hintText: 'ابحث عن آية أو كلمة...',
-            border: OutlineInputBorder(),
-          ),
+ void _showSearchDialog() {
+  String query = '';
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('البحث في القرآن'),
+      content: TextField(
+        decoration: const InputDecoration(
+          hintText: 'ابحث عن آية أو كلمة...',
+          border: OutlineInputBorder(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Implement search functionality
-              Navigator.pop(context);
-            },
-            child: const Text('بحث'),
-          ),
-        ],
+        onChanged: (value) {
+          query = value;
+        },
       ),
-    );
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('إلغاء'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+            _performSearch(query); // 🔍 Call actual search logic
+          },
+          child: const Text('بحث'),
+        ),
+      ],
+    ),
+  );
+}
+
+  void _performSearch(String query) {
+  final lowerQuery = query.trim().toLowerCase();
+  List<Map<String, dynamic>> matches = [];
+
+  for (int surah = 1; surah <= 114; surah++) {
+    int verseCount = quran.getVerseCount(surah);
+    for (int ayah = 1; ayah <= verseCount; ayah++) {
+      final text = quran.getVerse(surah, ayah);
+      if (text.contains(query)) {
+        matches.add({
+          'surah': surah,
+          'ayah': ayah,
+          'text': text,
+        });
+      }
+    }
   }
+
+  if (matches.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('لم يتم العثور على نتائج')),
+    );
+    return;
+  }
+
+  // Show result in a dialog or navigate to a results page
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('نتائج البحث'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: ListView.builder(
+          itemCount: matches.length,
+          itemBuilder: (context, index) {
+            final result = matches[index];
+            return ListTile(
+              title: Text(result['text']),
+              subtitle: Text(
+                'سورة ${quran.getSurahNameArabic(result['surah'])} - آية ${result['ayah']}',
+              ),
+              onTap: () {
+                setState(() {
+                  _currentSurah = result['surah'];
+                });
+                Navigator.pop(context); // close results dialog
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('إغلاق'),
+        ),
+      ],
+    ),
+  );
+}
+
 
   void _showBookmarksDialog() {
     showDialog(
@@ -418,6 +522,7 @@ class _AskSirajBottomSheetState extends ConsumerState<AskSirajBottomSheet> {
                     color: SirajColors.sirajBrown900,
                     height: 1.8,
                     fontSize: 18,
+                    fontFamily: 'AmiriQuran',
               ),
               textAlign: TextAlign.center,
             ),
@@ -484,14 +589,41 @@ class _AskSirajBottomSheetState extends ConsumerState<AskSirajBottomSheet> {
                       ),
                     )
                   : _response != null
-                      ? SingleChildScrollView(
-                          child: Text(
-                            _response!,
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  color: SirajColors.sirajBrown900,
-                                  height: 1.6,
+                      ? Column(
+                          children: [
+                            // Response text
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  _response!,
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: SirajColors.sirajBrown900,
+                                        height: 1.6,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            // Audio controls
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => _playFanarAnswer(_response!),
+                                  icon: const Icon(Icons.volume_up, size: 18),
+                                  label: const Text('استمع للإجابة'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: SirajColors.accentGold,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         )
                       : Center(
                           child: Column(
@@ -520,6 +652,23 @@ class _AskSirajBottomSheetState extends ConsumerState<AskSirajBottomSheet> {
         ],
       ),
     );
+  }
+
+  void _playFanarAnswer(String text) async {
+    try {
+      final audioService = ref.read(audioServiceProvider);
+      
+      // Use playLongTts for FANAR's answers which can be long
+      if (text.length > 500) {
+        await audioService.playLongTts(text);
+      } else {
+        await audioService.playTextToSpeech(text);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في تشغيل الصوت: $e')),
+      );
+    }
   }
 
   void _askQuestion() async {
