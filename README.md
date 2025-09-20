@@ -45,7 +45,8 @@ Siraj is built with modularity in mind — from backend APIs integrating Gemini 
 
 ## 🛠 Project Structure
 
-siraj/
+```
+📂 siraj/
 ├── assets/
 │ └── logo.png
 ├── backend/
@@ -60,7 +61,7 @@ siraj/
 ├── models/
 │ └── modelguy.glb
 └── README.md
-
+```
 
 ---
 
@@ -90,9 +91,9 @@ Even though the formal internship was not continued, contributions to **data ann
 ---
 
 ## 📸 Screenshots
-**Ask Siraj Screen**
-<img src="assets/Ask_siraj_screen.jpg" alt="Siraj Logo" width="150"/>
-
+<p align="center">
+  <img src="assets/Ask_siraj_screen.jpg" alt="Siraj Logo" width="150"/>
+</p>
 ---
 
 ## 📜 License
