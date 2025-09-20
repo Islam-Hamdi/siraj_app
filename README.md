@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Siraj Logo" width="150"/>
+  <img src="assets/logo_dark_siraj.png" alt="Siraj Logo" width="150"/>
+  <img src="assets/logo_light_siraj.png" alt="Siraj Logo Light" width="150"/>
 </p>
 
 <h1 align="center">Siraj – Your Arabic AI Learning Companion</h1>
@@ -89,8 +90,8 @@ Even though the formal internship was not continued, contributions to **data ann
 ---
 
 ## 📸 Screenshots
-
-> Add screenshots or GIFs here to demonstrate the app in action.
+**Ask Siraj Screen**
+<img src="assets/Ask_siraj_screen.jpg" alt="Siraj Logo" width="150"/>
 
 ---
 
